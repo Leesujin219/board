@@ -63,7 +63,7 @@
   <input type="button" value="목록보기" OnClick="window.location='list.jsp'">
 </td></tr></table>    
      
-</form>  </center></div>  
+</form></center></div>  
 
 
 

@@ -79,7 +79,32 @@ public class BoardDBBean {
 			//매개변수가 있어야함. 열어놓은 것들 달고 들어가야함
 		}
 	}
+	public int updateArticle(BoardDataBean article) {
+		Connection conn=null;
+		PreparedStatement pstmt=null;
+		int chk=0;
+		try {
+			conn=getConnection();
+			String sql="update board set writer=?,email=?,subject=?,content=? where num=? and passwd=?";
+			pstmt=conn.prepareStatement(sql);
+			pstmt.setString(1, article.getWriter());
+			pstmt.setString(2, article.getEmail());
+			pstmt.setString(3, article.getSubject());
+			pstmt.setString(4, article.getContent());
+			pstmt.setInt(5, article.getNum());
+			pstmt.setString(6, article.getPasswd());
+		
+			chk=pstmt.executeUpdate();
+			//executeUpdate (몇개의 row가 저장이 되었는지 int를 리턴함). 1이면 된 것, 0이면 안된 것
+			
+		}catch(Exception e) {}
+		finally {
+			close(conn,null,pstmt);	
+		}
+		
+		return chk;
 	
+	}
 	public int getArticleCount(String boardid) {
 		//총 글의 개수 count해줌
 		int x=0;
@@ -164,6 +189,64 @@ public class BoardDBBean {
 		return articleList;	
 	}
 
+	public BoardDataBean getArticle(int num,String boardid,String check) {
+		//글번호, 게시판번호, 넘어오기전 페이지의 유형(content/update)을 확인해서 해당 조건에 맞는 BoardDataBean객체를 리턴해줌
+		Connection conn=null;
+		PreparedStatement pstmt=null;
+		ResultSet rs=null;
+		BoardDataBean article=null;
+		//데이터를 넣을 BoardDataBean객체
+		String sql="";
+		try {
+			conn=getConnection();
+			
+			if(check.equals("content")) {
+				//content에서 넘어올 때만 쿼리 실행 (조회 수 올리는 쿼리)
+				sql="update board set readcount=readcount+1"
+						+"where num=? and boardid=?";
+				//num과 boardid를 조건으로 데이터를 찾은 후 조회 수 수정
+				pstmt=conn.prepareStatement(sql);
+				//parameter의 num과 boardid
+				pstmt.setInt(1, num);
+				pstmt.setString(2, boardid);
+				pstmt.executeUpdate();
+			}
+
+			sql="select * from board where num=? and boardid=?";
+			pstmt=conn.prepareStatement(sql);
+			//parameter의 num과 boardid
+			pstmt.setInt(1, num);
+			pstmt.setString(2, boardid);
+			rs=pstmt.executeQuery();	//데이터 받음
+			
+			if(rs.next()) {
+				//true일 때 BoardDataBean에 넣어야함
+				article=new BoardDataBean();
+				article.setNum(rs.getInt("num"));
+				article.setWriter(rs.getString("writer"));
+				article.setEmail(rs.getString("email"));
+				article.setSubject(rs.getString("subject"));
+				article.setPasswd(rs.getString("passwd"));
+				article.setReg_date(rs.getTimestamp("reg_date"));
+				article.setReadcount(rs.getInt("readcount"));
+				article.setRef(rs.getInt("ref"));
+				article.setRe_step(rs.getInt("re_step"));
+				article.setRe_level(rs.getShort("re_level"));
+				article.setContent(rs.getString("content"));
+				article.setIp(rs.getString("ip"));
+				//생성한 article 객체에다가 값을 세팅해줌
+				
+			}
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}finally {
+			close(conn,rs,pstmt);
+		}
+		return article;
+		
+	}
+	
 	
 	public void close(Connection con,ResultSet rs,PreparedStatement pstmt) {
 		//커넥션 닫는 메서드

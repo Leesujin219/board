@@ -65,7 +65,7 @@ public class BoardDataBean {
 	public int getReadcount() {
 		return readcount;
 	}
-	public void setReadcount(int readcound) {
+	public void setReadcount(int readcount) {
 		this.readcount = readcount;
 	}
 	public int getRef() {
