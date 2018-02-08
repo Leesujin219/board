@@ -9,12 +9,15 @@
 </head>
 <body>
 <% request.setCharacterEncoding("euc-kr"); %>
-<%
-	String pageNum=request.getParameter("pageNum");
-	//pageNum < 글 목록 보기를 위해 넘어옴 
-	if(pageNum==null||pageNum==""){
-		pageNum="1";
-	}
+
+<%  String boardid = request.getParameter("boarid");
+	if (boardid==null) 
+		boardid = "1";
+	String pageNum = request.getParameter("pageNum");
+	//글목록 보기를 위해 pageNum 넘어옴
+  	if (pageNum == null || pageNum == "") 
+  	//pageNum==null이 먼저 나와야함!! 앞이TRUE면 뒷부분 체크 안하기 때문에
+		pageNum = "1";	
 %>
 
 <jsp:useBean id="article" class="board.BoardDataBean" >

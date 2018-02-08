@@ -49,9 +49,36 @@ public class BoardDBBean {
 			rs=pstmt.executeQuery();
 			if(rs.next())
 				number=rs.getInt(1)+1;
+			//serial을 1부터 생성하면 1빼기
 			else
 				number=1;
-			
+		
+		//답글용 ref re_level re_step
+		int num=article.getNum();
+		int ref=article.getRef();
+		int re_step=article.getRe_step();
+		int re_level=article.getRe_level();
+		if(num!=0) {//답글 일 때
+			sql="update board set re_step=re_step+1 where ref=? and re_step>? and boardid=?";
+			//기존 글들의 step을 정리해주는 쿼리
+			//새로들어가는 답글의 re_step이 가장 높아야 하기 때문에, 기존의 다른 답글들의 re_step을 1씩 증가시킨다.
+			//새로작성하는 답글의 re_step 0(원글에 대한 답글) > 기존의 re_step 1,2 > 2,3로 변경
+			//새로작성하는 답글의 re_step 1(답글(re_step1)에 대한 답글) > 기존의 re_step 2,3 > 3,4로 변경 
+			pstmt=con.prepareStatement(sql);
+			pstmt.setInt(1, ref);
+			pstmt.setInt(2, re_step);
+			pstmt.setString(3, article.getBoardid());
+			pstmt.executeUpdate();
+			re_step=re_step+1;
+			//새로 작성하는 답글의 re_step을 1 증가시킴. 
+			//새로작성하는 답글의 re_step 0(원글에 대한 답글) > 1
+			//새로작성하는 답글의 re_step 1(답글(re_step1)에 대한 답글) > 2
+			re_level=re_level+1;
+			//답글의 level. 원글 0, 원글에 대한 답글 1, 답글(1)에대한 답글 2 ...
+
+		}else {//새글 일 때
+			ref=number;re_step=0;re_level=0;
+		}
 			sql="insert into board(num,writer,email,subject,passwd,reg_date,"
 					+ "ref,re_step,re_level,content,ip,boardid)"
 					+ "values(?,?,?,?,?,sysdate,?,?,?,?,?,?)";
@@ -62,9 +89,9 @@ public class BoardDBBean {
 			pstmt.setString(3, article.getEmail());
 			pstmt.setString(4, article.getSubject());
 			pstmt.setString(5, article.getPasswd());
-			pstmt.setInt(6, number);
-			pstmt.setInt(7, 0);
-			pstmt.setInt(8, 0);
+			pstmt.setInt(6, ref);	//답글의 ref값은 원글과 같음(원글의 ref가져옴)
+			pstmt.setInt(7, re_step);
+			pstmt.setInt(8, re_level);
 			pstmt.setString(9, article.getContent());
 			pstmt.setString(10, article.getIp());
 			pstmt.setString(11, article.getBoardid());
@@ -187,6 +214,27 @@ public class BoardDBBean {
 			close(conn,rs,pstmt);
 		}
 		return articleList;	
+	}
+	public int deleteArticle(int num,String passwd,String boardid)throws Exception{
+		Connection conn=null;
+		PreparedStatement pstmt=null;
+		ResultSet rs=null;
+		String sql="delete from board where num=? and passwd=?";
+		int x=-1;
+		try {
+			conn=getConnection();
+			pstmt=conn.prepareStatement(sql);
+			pstmt.setInt(1, num);
+			pstmt.setString(2, passwd);
+			x=pstmt.executeUpdate();
+			//1(변경된 row의 수)또는 0출력 
+		}catch(Exception ex) {
+			ex.printStackTrace();
+		}finally {
+			close(conn,rs,pstmt);
+			
+		}return x;
+		
 	}
 
 	public BoardDataBean getArticle(int num,String boardid,String check) {

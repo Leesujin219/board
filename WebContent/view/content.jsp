@@ -73,6 +73,7 @@
 				&nbsp;&nbsp;&nbsp;&nbsp;
 			<input type="button" value="답글쓰기"
 				onclick="document.location.href='writeForm.jsp?num=<%=num %>&ref=<%=ref %>&re_step=<%=re_step%>&re_level=<%=re_level%>&pageNum=<%=pageNum %>'">
+				<!-- 현재 content글의 ref,re_step,re_level값 넘겨줌 -->
 				&nbsp;&nbsp;&nbsp;&nbsp;
 			<input type="button" value="글목록"
 				onclick="document.location.href='list.jsp?pageNum=<%=pageNum %>'">

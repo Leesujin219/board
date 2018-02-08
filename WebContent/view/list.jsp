@@ -90,20 +90,31 @@
 				//ㄴ> 댓글모양 서식
 				int wid=0;
 				if(article.getRe_level()>0){
-					wid=5*(article.getRe_level());//re_level 0이면 0됨
+					//답글일때
+					wid=5*(article.getRe_level());
+					if(article.getRe_level()>1){//level 2부터 간격 차이가 안나서 임의로 늘림!
+						wid=15*(article.getRe_level());//
+					}
 			%>
-				<img src="images/level.gif width=<%=wid%>" height="16">
+				<img src="../images/level.gif" width=<%=wid%> height="16">
+				<img src="../images/re.gif">
 			<%
+				}else{
+					%>
+				<img src="../images/level.gif" width="<%=wid %>" height="16" >
+					<%
 				}
 			%><a href= "content.jsp?num=<%=article.getNum() %>&pageNum=<%=currentPage %>">
 			<%-- 글 제목 클릭 시 내용보기로 넘어감 --%>
 			<%=article.getSubject() %></a>
+			<!-- 글제목 출력 -->
 			<%
 				 if(article.getReadcount()>=20){
 					//조회수가 20보다 클 때 
 					%>
-					<img src="image/hot.gif" border="0" height="16">
-					<%} %></td>
+					<img src="../images/hot.gif" border="0" height="16">
+					<%} //글제목 옆에 hot이미지 출력
+					%></td>
 					<td align="center" width="100"><%=article.getWriter() %></td>
 					<!-- 글쓴이 출력 -->
 					<td align="center" width="150">
